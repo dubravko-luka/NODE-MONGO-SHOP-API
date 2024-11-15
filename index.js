@@ -11,7 +11,7 @@ const cors = require("cors");
 // SocketIo
 const io = require("socket.io")(sever, {
   cors: {
-    origin: "http://kaitoshop.cf",
+    origin: "https://shop.client-preview.xyz",
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Access-Control-Allow-Origin",
@@ -42,10 +42,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Header",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+  res.header("Access-Control-Header", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methoads", "PUT, POST, DELETE, GET");
   next();
 });
@@ -85,11 +82,11 @@ io.on("connection", (socket) => {
       }
       const data = {
         accountOnline: countUserOnline.length,
-        view: resultUpdate.View
-      }
+        view: resultUpdate.View,
+      };
       io.sockets.emit("severCountUserOnline", data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   });
   // create comment
@@ -129,7 +126,7 @@ io.on("connection", (socket) => {
           numReviews: start > 0 ? num + 1 : num,
         };
         await Products.findByIdAndUpdate(id_product, data, options);
-        if (send === 'repLyComment') {
+        if (send === "repLyComment") {
           const commentReply = new Comment({
             _id: new mongoose.Types.ObjectId(),
             id_product,
@@ -147,7 +144,7 @@ io.on("connection", (socket) => {
             const { _id, id_product, content, timeComment, id_user, name, role, avatar, editComment } = commentReply;
             comment.reply.push({ role, _id, id_product, content, start: 0, timeComment, id_user, name, avatar, editComment });
             await comment.save();
-            io.to(comment.id_product).emit('ServerUserCreateCommentReply', comment);
+            io.to(comment.id_product).emit("ServerUserCreateCommentReply", comment);
           }
         } else {
           await newComment.save();
@@ -158,29 +155,30 @@ io.on("connection", (socket) => {
           const threeStarsResult = await Comment.find({ id_product: id_product, start: 3 });
           const fourStarsResult = await Comment.find({ id_product: id_product, start: 4 });
           const fiveStarsResult = await Comment.find({ id_product: id_product, start: 5 });
-          const sumStarRating = oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
+          const sumStarRating =
+            oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
           const starRating = {
             oneStars: oneStarsResult.length,
             twoStars: twoStarsResult.length,
             threeStars: threeStarsResult.length,
             fourStars: fourStarsResult.length,
-            fiveStart: fiveStarsResult.length
+            fiveStart: fiveStarsResult.length,
           };
           const resultData = {
             length: dataComments.length,
             comment: newComment,
             product: products,
-            reviewRating: (sumStarRating > 0 && products.rating > 0) ? (products.rating / sumStarRating) : 0,
+            reviewRating: sumStarRating > 0 && products.rating > 0 ? products.rating / sumStarRating : 0,
             starRating: starRating,
-            sumStarRating: sumStarRating
+            sumStarRating: sumStarRating,
           };
           io.to(newComment.id_product).emit("ServerUserCreateComment", resultData);
         }
       } else {
         const noUsers = {
           accountDelete: true,
-          _id_user: idUser
-        }
+          _id_user: idUser,
+        };
         io.sockets.emit("serverDeleteAccount", noUsers);
       }
     } catch (err) {
@@ -210,14 +208,14 @@ io.on("connection", (socket) => {
                   const sendReply = await Comment.findByIdAndUpdate(id_array, { reply: reply }, { new: true });
                   const data = {
                     id_array: id_array,
-                    comment: sendReply
+                    comment: sendReply,
                   };
                   io.to(sendReply.id_product).emit("serverUserDeleteReplyComment", data);
                   break;
                 }
               }
-            };
-          };
+            }
+          }
         }
         //delete no reply
         if (comment) {
@@ -237,30 +235,30 @@ io.on("connection", (socket) => {
           const threeStarsResult = await Comment.find({ id_product: id_product, start: 3 });
           const fourStarsResult = await Comment.find({ id_product: id_product, start: 4 });
           const fiveStarsResult = await Comment.find({ id_product: id_product, start: 5 });
-          const sumStarRating = oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
+          const sumStarRating =
+            oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
           const starRating = {
             oneStars: oneStarsResult.length,
             twoStars: twoStarsResult.length,
             threeStars: threeStarsResult.length,
             fourStars: fourStarsResult.length,
-            fiveStart: fiveStarsResult.length
+            fiveStart: fiveStarsResult.length,
           };
           const resultData = {
             length: dataComments.length,
             comment: comment,
             product: products,
-            reviewRating: (sumStarRating > 0 && products.rating > 0) ? (products.rating / sumStarRating) : 0,
+            reviewRating: sumStarRating > 0 && products.rating > 0 ? products.rating / sumStarRating : 0,
             starRating: starRating,
             sumStarRating: sumStarRating,
           };
           io.to(comment.id_product).emit("serverUserDeleteComment", resultData);
         }
-      }
-      else {
+      } else {
         const noUsers = {
           accountDelete: true,
-          _id_user: idUser
-        }
+          _id_user: idUser,
+        };
         io.sockets.emit("serverDeleteAccount", noUsers);
       }
     } catch (error) {
@@ -295,8 +293,8 @@ io.on("connection", (socket) => {
                   break;
                 }
               }
-            };
-          };
+            }
+          }
         }
         // update no reply
         if (comment) {
@@ -309,7 +307,7 @@ io.on("connection", (socket) => {
           const rateOld = product.rating;
           const resultComment = await Comment.findByIdAndUpdate(_id, newComment, options);
           const startOld = start > 0 ? comment.start : start;
-          const resultStart = start > 0 ? (startOld - start) : start;
+          const resultStart = start > 0 ? startOld - start : start;
           const newProduct = { rating: resultStart > 0 ? rateOld - Math.abs(resultStart) : rateOld + Math.abs(resultStart) };
           await Products.findByIdAndUpdate(idProduct, newProduct, options);
           const products = await Products.findById(idProduct);
@@ -318,29 +316,29 @@ io.on("connection", (socket) => {
           const threeStarsResult = await Comment.find({ id_product: idProduct, start: 3 });
           const fourStarsResult = await Comment.find({ id_product: idProduct, start: 4 });
           const fiveStarsResult = await Comment.find({ id_product: idProduct, start: 5 });
-          const sumStarRating = oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
+          const sumStarRating =
+            oneStarsResult.length + twoStarsResult.length + threeStarsResult.length + fourStarsResult.length + fiveStarsResult.length;
           const starRating = {
             oneStars: oneStarsResult.length,
             twoStars: twoStarsResult.length,
             threeStars: threeStarsResult.length,
             fourStars: fourStarsResult.length,
-            fiveStart: fiveStarsResult.length
+            fiveStart: fiveStarsResult.length,
           };
           const resultData = {
             comment: resultComment,
             product: products,
-            reviewRating: (sumStarRating > 0 && products.rating > 0) ? (products.rating / sumStarRating) : 0,
+            reviewRating: sumStarRating > 0 && products.rating > 0 ? products.rating / sumStarRating : 0,
             starRating: starRating,
             sumStarRating: sumStarRating,
           };
           io.to(resultComment.id_product).emit("serverUserUpdateComment", resultData);
         }
-      }
-      else {
+      } else {
         const noUsers = {
           accountDelete: true,
-          _id_user: idUser
-        }
+          _id_user: idUser,
+        };
         io.sockets.emit("serverDeleteAccount", noUsers);
       }
     } catch (error) {
@@ -369,9 +367,9 @@ io.on("connection", (socket) => {
                 const id_array = dataReply[index]._id;
                 await Comment.findByIdAndUpdate(id_array, { reply: reply }, options);
               }
-            };
+            }
           }
-        };
+        }
         const resultData = {
           user: resultUser,
           id_user: idUser,
@@ -383,17 +381,17 @@ io.on("connection", (socket) => {
     }
   });
   // wait Write Comment
-  socket.on('waitWriteComment', msg => {
+  socket.on("waitWriteComment", (msg) => {
     const { idProduct, message } = msg;
-    socket.to(idProduct).emit('waitWriteComment', message);
+    socket.to(idProduct).emit("waitWriteComment", message);
   });
   // upload image
-  socket.on('userUploadAvatar', msg => {
+  socket.on("userUploadAvatar", (msg) => {
     const { avatar, idUser } = msg;
     const resultData = {
       userId: idUser,
-      user: avatar
-    }
+      user: avatar,
+    };
     io.sockets.emit("serverUserUploadAvatar", resultData);
   });
   socket.on("disconnect", async () => {
@@ -433,7 +431,6 @@ app.use((error, req, res, next) => {
     },
   });
 });
-
 
 sever.listen(PORT, () => {
   console.log(`server started on http://localhost:${PORT}`);
