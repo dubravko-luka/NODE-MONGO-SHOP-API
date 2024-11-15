@@ -11,7 +11,7 @@ const cors = require("cors");
 // SocketIo
 const io = require("socket.io")(sever, {
   cors: {
-    origin: "https://shop.client-preview.xyz",
+    origin: "*",
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Access-Control-Allow-Origin",
