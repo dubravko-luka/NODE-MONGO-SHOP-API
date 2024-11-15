@@ -35,7 +35,6 @@ module.exports = {
   TYPES_PRODUCT: async (req, res) => {
     try {
       const name = req.query.name.trim().toLowerCase() || "";
-      console.log(name);
       const page = parseInt(req.query.page) || 1;
       const sort_price = parseInt(req.query.sort_price) || 0;
       const items = parseInt(req.query.items) || 20;
