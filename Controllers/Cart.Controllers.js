@@ -1,8 +1,8 @@
-const createError = require('http-errors')
+const createError = require("http-errors");
 const mongoose = require("mongoose");
-const moment = require('moment');
+const moment = require("moment");
 
-const Cart = require('../Model/Cart');
+const Cart = require("../Model/Cart");
 const User = require("../Model/User");
 
 class ApiFeatures {
@@ -11,19 +11,18 @@ class ApiFeatures {
     this.queryString = queryString;
   }
   sorting() {
-    this.query = this.query.sort('-timeCart')
+    this.query = this.query.sort("-timeCart");
     return this;
   }
   paginating() {
-    const page = this.queryString.page * 1 || 1
-    const limit = this.queryString.limit * 1 || 5
-    const skip = (page - 1) * limit
-    this.query = this.query.skip(skip).limit(limit)
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 5;
+    const skip = (page - 1) * limit;
+    this.query = this.query.skip(skip).limit(limit);
     return this;
   }
 }
 module.exports = {
-
   ADD_CART: async (req, res, next) => {
     try {
       const timeCart = moment().format();
@@ -37,14 +36,14 @@ module.exports = {
         cart: req.body.cart,
         payment: req.body.payment,
         success: false,
-        status_order: true
-      })
+        status_order: true,
+      });
       const result = await newCart.save();
       res.status(200).json({
-        data: result
-      })
+        data: result,
+      });
     } catch (error) {
-      res.send(createError(404, error))
+      res.send(createError(404, error));
     }
   },
 
@@ -53,11 +52,11 @@ module.exports = {
       const features = new ApiFeatures(Cart.find({ id_User: req.data.id }), req.query).sorting().paginating();
       const cart = await features.query;
       res.status(200).json({
-        status: 'success',
+        status: "success",
         cart: cart,
-      })
+      });
     } catch (error) {
-      res.send(createError(404, 'no cart found'))
+      res.send(createError(404, "no cart found"));
     }
   },
   DELETE_CART: async (req, res, next) => {
@@ -68,19 +67,19 @@ module.exports = {
       if (id_user) {
         const searchCart = await Cart.findById(id_cart);
         if (!searchCart) {
-          res.send(createError(404, 'no id cart'));
+          res.send(createError(404, "no id cart"));
         }
         const deleteCart = await Cart.findByIdAndDelete(id_cart);
         if (!deleteCart) {
-          res.send(createError(404, 'no cart'));
+          res.send(createError(404, "no cart"));
         }
         res.status(200).json({
-          status: 'delete success',
-          data: deleteCart
-        })
+          status: "delete success",
+          data: deleteCart,
+        });
       }
     } catch (error) {
-      console.log({ error })
+      console.log({ error });
     }
   },
   UPDATE_ADDRESS: async (req, res, next) => {
@@ -92,17 +91,17 @@ module.exports = {
       const data = {
         address: address,
         phone: phone,
-      }
+      };
       const user = await User.findById(id);
       if (user) {
         const card = await Cart.findByIdAndUpdate(id_card, data, options);
         res.status(200).json({
           status: "update success",
-          data: [card]
-        })
+          data: [card],
+        });
       }
     } catch (error) {
-      res.status(error)
+      res.status(error);
     }
   },
   STATUS_ORDER: async (req, res, next) => {
@@ -114,17 +113,17 @@ module.exports = {
       const data = {
         status_order: status_order,
         success: false,
-      }
+      };
       const user = await User.findById(id);
       if (user) {
         const card = await Cart.findByIdAndUpdate(id_card, data, options);
         res.status(200).json({
           status: "update success",
-          data: [card]
+          data: [card],
         });
       }
     } catch (error) {
-      res.status(error)
+      res.status(error);
     }
-  }
-}
+  },
+};
